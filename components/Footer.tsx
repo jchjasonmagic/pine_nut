@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin, QrCode } from 'lucide-react';
-import qrcodeImg from '../qrcode.jpg';
+import qrcodeImg from '../qrcode.png';
 
 const Footer: React.FC = () => {
   return (

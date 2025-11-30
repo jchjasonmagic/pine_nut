@@ -64,8 +64,16 @@ const Story: React.FC = () => {
                 const vids = [video1, video2, video3, video4, video5];
                 const [index, setIndex] = React.useState(0);
                 const [startX, setStartX] = React.useState<number | null>(null);
-                const prev = () => setIndex((index - 1 + vids.length) % vids.length);
-                const next = () => setIndex((index + 1) % vids.length);
+                const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
+                const pauseAll = () => {
+                  videoRefs.current.forEach(v => v && v.pause());
+                };
+                const goTo = (i: number) => {
+                  pauseAll();
+                  setIndex(i);
+                };
+                const prev = () => goTo((index - 1 + vids.length) % vids.length);
+                const next = () => goTo((index + 1) % vids.length);
                 const onTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
                 const onTouchEnd = (e: React.TouchEvent) => {
                   if (startX === null) return;
@@ -75,6 +83,12 @@ const Story: React.FC = () => {
                   }
                   setStartX(null);
                 };
+                React.useEffect(() => {
+                  const v = videoRefs.current[index];
+                  if (v) {
+                    try { v.currentTime = 0; v.play(); } catch {}
+                  }
+                }, [index]);
                 return (
                   <div className="w-full h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                     <div
@@ -84,6 +98,7 @@ const Story: React.FC = () => {
                       {vids.map((src, i) => (
                         <video
                           key={i}
+                          ref={(el) => { videoRefs.current[i] = el; }}
                           controls
                           playsInline
                           preload="metadata"
@@ -111,7 +126,7 @@ const Story: React.FC = () => {
                       {vids.map((_, i) => (
                         <button
                           key={i}
-                          onClick={() => setIndex(i)}
+                          onClick={() => goTo(i)}
                           className={`w-2.5 h-2.5 rounded-full ${i === index ? 'bg-white' : 'bg-white/50'}`}
                         />
                       ))}

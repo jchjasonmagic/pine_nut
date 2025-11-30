@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { X, QrCode } from 'lucide-react';
-import qrcodeImg from '../qrcode.jpg';
+import qrcodeImg from '../qrcode.png';
 
 interface ContactModalProps {
   isOpen: boolean;
