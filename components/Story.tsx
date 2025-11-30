@@ -102,16 +102,22 @@ const Story: React.FC = () => {
                         <video
                           key={i}
                           ref={(el) => { videoRefs.current[i] = el; }}
+                          src={src}
                           controls
                           playsInline
-                          preload="metadata"
+                          preload="auto"
                           controlsList="nodownload noremoteplayback"
                           disablePictureInPicture
-                          poster={coverFallback}
+                          muted
+                          autoPlay={i === index}
                           className="w-full h-[600px] object-cover flex-shrink-0"
-                        >
-                          <source src={src} type="video/mp4" />
-                        </video>
+                          onLoadedData={() => {
+                            if (i === index) {
+                              const v = videoRefs.current[i];
+                              if (v) v.play().catch(() => {});
+                            }
+                          }}
+                        />
                       ))}
                     </div>
                     <button
