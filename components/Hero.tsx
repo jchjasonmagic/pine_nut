@@ -1,6 +1,7 @@
 
 import React from 'react';
 import cover from '../cover.avif';
+import coverFallback from '../factory.jpg';
 import { ChevronDown, Award, ShieldCheck } from 'lucide-react';
 
 const Hero: React.FC = () => {
@@ -8,11 +9,14 @@ const Hero: React.FC = () => {
     <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
       {/* Background Image - Reliable Forest Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={cover} 
-          alt="Changbai Mountain Forest" 
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          <source srcSet={cover} type="image/avif" />
+          <img 
+            src={coverFallback} 
+            alt="Changbai Mountain Forest" 
+            className="w-full h-full object-cover"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-900/80"></div>
       </div>
 
