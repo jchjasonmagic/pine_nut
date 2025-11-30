@@ -89,10 +89,6 @@ const Story: React.FC = () => {
                   if (v) {
                     try {
                       v.currentTime = 0;
-                      // Try to play muted video after slide change
-                      requestAnimationFrame(() => {
-                        v.play().catch(() => {});
-                      });
                     } catch {}
                   }
                 }, [index]);
@@ -106,26 +102,16 @@ const Story: React.FC = () => {
                         <video
                           key={i}
                           ref={(el) => { videoRefs.current[i] = el; }}
-                          src={src}
                           controls
                           playsInline
-                          preload="auto"
+                          preload="metadata"
                           controlsList="nodownload noremoteplayback"
                           disablePictureInPicture
-                          crossOrigin="anonymous"
-                          muted
                           poster={coverFallback}
                           className="w-full h-[600px] object-cover flex-shrink-0"
-                          onCanPlay={() => {
-                            if (i === index) {
-                              const v = videoRefs.current[i];
-                              if (v) v.play().catch(() => {});
-                            }
-                          }}
-                          onError={(e) => {
-                            console.error('Video error at index', i, e);
-                          }}
-                        />
+                        >
+                          <source src={src} type="video/mp4" />
+                        </video>
                       ))}
                     </div>
                     <button
