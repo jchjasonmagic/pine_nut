@@ -66,6 +66,8 @@ const Story: React.FC = () => {
                 const [index, setIndex] = React.useState(0);
                 const [startX, setStartX] = React.useState<number | null>(null);
                 const videoRef = React.useRef<HTMLVideoElement | null>(null);
+                const isIOS = /iPhone|iPad|iPod/i.test(typeof navigator !== 'undefined' ? navigator.userAgent : '');
+                const [needsUserPlay, setNeedsUserPlay] = React.useState(false);
                 const goTo = (i: number) => {
                   setIndex(i);
                 };
@@ -87,12 +89,6 @@ const Story: React.FC = () => {
                       v.pause();
                       v.currentTime = 0;
                       v.load();
-                      const p = v.play();
-                      if (p && typeof p.then === 'function') {
-                        p.catch(err => {
-                          console.error('Video play failed', { index, err });
-                        });
-                      }
                     } catch {}
                   }
                 }, [index]);
@@ -128,7 +124,15 @@ const Story: React.FC = () => {
                           console.log('Video loaded', { index, duration: v.duration });
                         }}
                         onCanPlay={() => {
-                          console.log('Video can play', { index });
+                          const v = videoRef.current;
+                          if (!v) return;
+                          const p = v.play();
+                          if (p && typeof p.then === 'function') {
+                            p.catch(err => {
+                              setNeedsUserPlay(isIOS);
+                              console.error('Video play failed', { index, err });
+                            });
+                          }
                         }}
                         onPlay={() => {
                           console.log('Video playing', { index });
@@ -139,6 +143,18 @@ const Story: React.FC = () => {
                         <source src={vids[index]} type="video/mp4" />
                       </video>
                     </div>
+                    {needsUserPlay && (
+                      <button
+                        onClick={() => {
+                          const v = videoRef.current;
+                          if (!v) return;
+                          v.play().then(() => setNeedsUserPlay(false)).catch(() => setNeedsUserPlay(true));
+                        }}
+                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 text-white rounded-full px-6 py-3 shadow-lg"
+                      >
+                        点击播放
+                      </button>
+                    )}
                     <button
                       onClick={prev}
                       className="absolute left-4 top-1/2 -translate-y-1/2 bg-stone-900/40 hover:bg-stone-900/60 text-white rounded-full p-3"

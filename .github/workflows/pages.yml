@@ -19,6 +19,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -26,6 +30,12 @@ jobs:
           cache: 'npm'
       - name: Install
         run: npm ci
+      - name: Transcode videos for iOS compatibility
+        run: |
+          for f in video*.mp4; do 
+            ffmpeg -y -i "$f" -c:v libx264 -profile:v high -level 4.0 -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k "processed_$f";
+            mv "processed_$f" "$f";
+          done
       - name: Build
         run: npm run build
       - name: Upload Pages Artifact
@@ -43,4 +53,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
