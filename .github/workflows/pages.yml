@@ -26,10 +26,17 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: 'npm'
+      - name: Show versions
+        run: |
+          node --version
+          npm --version
       - name: Install
-        run: npm ci
+        env:
+          NPM_CONFIG_FUND: false
+          NPM_CONFIG_AUDIT: false
+        run: npm install --no-audit --no-fund
       - name: Transcode videos for iOS compatibility
         run: |
           for f in video*.mp4; do 
