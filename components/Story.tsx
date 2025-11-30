@@ -144,7 +144,7 @@ const Story: React.FC = () => {
                         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
                         style={{ opacity: 1 }}
                       >
-                        <source src={vids[index]} type="video/mp4" />
+                        <source src={vids[index]} type='video/mp4; codecs="hvc1"'>
                       </video>
                     </div>
                     {needsUserPlay && (
