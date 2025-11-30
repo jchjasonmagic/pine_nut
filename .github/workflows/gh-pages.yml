@@ -40,6 +40,11 @@ jobs:
           fi
           npm ls vite || true
 
+      - name: Ensure vite locally
+        run: |
+          npm install -D vite@^6.4.1 @vitejs/plugin-react@^5
+          npx --yes vite --version
+
       - name: Build
         run: npm run build
 
