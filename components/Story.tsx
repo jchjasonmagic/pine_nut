@@ -94,10 +94,7 @@ const Story: React.FC = () => {
                 }, [index]);
                 return (
                   <div className="w-full h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div
-                      className="flex w-full h-full transition-transform duration-500"
-                      style={{ transform: `translateX(-${index * 100}%)` }}
-                    >
+                    <div className="relative w-full h-full">
                       {vids.map((src, i) => (
                         <video
                           key={i}
@@ -105,18 +102,12 @@ const Story: React.FC = () => {
                           src={src}
                           controls
                           playsInline
-                          preload="auto"
+                          preload="metadata"
                           controlsList="nodownload noremoteplayback"
                           disablePictureInPicture
                           muted
-                          autoPlay={i === index}
-                          className="w-full h-[600px] object-cover flex-shrink-0"
-                          onLoadedData={() => {
-                            if (i === index) {
-                              const v = videoRefs.current[i];
-                              if (v) v.play().catch(() => {});
-                            }
-                          }}
+                          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                          style={{ opacity: i === index ? 1 : 0 }}
                         />
                       ))}
                     </div>
