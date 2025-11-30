@@ -1,5 +1,6 @@
 
 import React from 'react';
+import cover from '../cover.avif';
 import { ChevronDown, Award, ShieldCheck } from 'lucide-react';
 
 const Hero: React.FC = () => {
@@ -8,7 +9,7 @@ const Hero: React.FC = () => {
       {/* Background Image - Reliable Forest Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop" 
+          src={cover} 
           alt="Changbai Mountain Forest" 
           className="w-full h-full object-cover"
         />
