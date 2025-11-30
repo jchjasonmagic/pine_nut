@@ -6,6 +6,7 @@ import video3 from '../video3.mp4';
 import video4 from '../video4.mp4';
 import video5 from '../video5.mp4';
 import { Clock, Mountain, ArrowDown } from 'lucide-react';
+import coverFallback from '../factory.jpg';
 
 const Story: React.FC = () => {
   return (
@@ -86,7 +87,13 @@ const Story: React.FC = () => {
                 React.useEffect(() => {
                   const v = videoRefs.current[index];
                   if (v) {
-                    try { v.currentTime = 0; } catch {}
+                    try {
+                      v.currentTime = 0;
+                      // Try to play muted video after slide change
+                      requestAnimationFrame(() => {
+                        v.play().catch(() => {});
+                      });
+                    } catch {}
                   }
                 }, [index]);
                 return (
@@ -99,18 +106,26 @@ const Story: React.FC = () => {
                         <video
                           key={i}
                           ref={(el) => { videoRefs.current[i] = el; }}
+                          src={src}
                           controls
                           playsInline
-                          preload="metadata"
+                          preload="auto"
                           controlsList="nodownload noremoteplayback"
                           disablePictureInPicture
                           crossOrigin="anonymous"
                           muted
-                          autoPlay={i === index}
+                          poster={coverFallback}
                           className="w-full h-[600px] object-cover flex-shrink-0"
-                        >
-                          <source src={src} type="video/mp4" />
-                        </video>
+                          onCanPlay={() => {
+                            if (i === index) {
+                              const v = videoRefs.current[i];
+                              if (v) v.play().catch(() => {});
+                            }
+                          }}
+                          onError={(e) => {
+                            console.error('Video error at index', i, e);
+                          }}
+                        />
                       ))}
                     </div>
                     <button
