@@ -24,16 +24,18 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Print versions
+        run: |
+          node -v
+          npm -v
+
       - name: Install
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci --include=dev
-          else
-            npm install
-          fi
-        
+          npm install --include=dev --no-audit --no-fund
+          npm ls vite || true
+
       - name: Build
-        run: npm run build
+        run: npx vite build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
