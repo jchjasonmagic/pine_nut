@@ -93,14 +93,18 @@ const Story: React.FC = () => {
                   }
                 }, [index]);
                 return (
-                  <div className="w-full h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className="relative w-full h-full">
+                  <div className="w-full h-[60vh] md:h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                    <div className="relative z-10 w-full h-full">
                       <video
                         key={index}
                         ref={videoRef}
                         src={vids[index]}
                         controls
                         playsInline
+                        webkit-playsinline
+                        x5-playsinline
+                        x5-video-player-type="h5"
+                        x5-video-player-fullscreen="false"
                         preload="auto"
                         controlsList="nodownload noremoteplayback"
                         disablePictureInPicture
@@ -150,7 +154,7 @@ const Story: React.FC = () => {
                           if (!v) return;
                           v.play().then(() => setNeedsUserPlay(false)).catch(() => setNeedsUserPlay(true));
                         }}
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 text-white rounded-full px-6 py-3 shadow-lg"
+                        className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 text-white rounded-full px-6 py-3 shadow-lg"
                       >
                         点击播放
                       </button>
@@ -179,7 +183,7 @@ const Story: React.FC = () => {
                   </div>
                 );
               })()}
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent md:opacity-50 opacity-20 pointer-events-none z-0"></div>
               <div className="absolute bottom-8 left-8 text-white">
                 <div className="text-xs uppercase tracking-widest opacity-70 mb-2">Brand Story</div>
                 <div className="text-2xl font-serif">走进长白山与松子</div>
