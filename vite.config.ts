@@ -6,6 +6,9 @@ export default defineConfig(({ mode }) => {
     const isProd = mode === 'production';
     return {
       base: isProd ? '/pine_nut/' : '/',
+      build: {
+        outDir: 'docs'
+      },
       server: {
         port: 3000,
         host: '0.0.0.0',

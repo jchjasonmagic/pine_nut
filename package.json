@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "postbuild": "cp docs/index.html docs/404.html",
+    "preview": "vite preview --outDir docs"
   },
   "dependencies": {
     "react-dom": "^19.2.0",

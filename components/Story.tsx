@@ -86,7 +86,7 @@ const Story: React.FC = () => {
                 React.useEffect(() => {
                   const v = videoRefs.current[index];
                   if (v) {
-                    try { v.currentTime = 0; v.play(); } catch {}
+                    try { v.currentTime = 0; } catch {}
                   }
                 }, [index]);
                 return (
@@ -104,6 +104,9 @@ const Story: React.FC = () => {
                           preload="metadata"
                           controlsList="nodownload noremoteplayback"
                           disablePictureInPicture
+                          crossOrigin="anonymous"
+                          muted
+                          autoPlay={i === index}
                           className="w-full h-[600px] object-cover flex-shrink-0"
                         >
                           <source src={src} type="video/mp4" />
