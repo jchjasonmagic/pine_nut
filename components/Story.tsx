@@ -65,12 +65,8 @@ const Story: React.FC = () => {
                 const vids = [video1, video2, video3, video4, video5];
                 const [index, setIndex] = React.useState(0);
                 const [startX, setStartX] = React.useState<number | null>(null);
-                const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
-                const pauseAll = () => {
-                  videoRefs.current.forEach(v => v && v.pause());
-                };
+                const videoRef = React.useRef<HTMLVideoElement | null>(null);
                 const goTo = (i: number) => {
-                  pauseAll();
                   setIndex(i);
                 };
                 const prev = () => goTo((index - 1 + vids.length) % vids.length);
@@ -85,31 +81,63 @@ const Story: React.FC = () => {
                   setStartX(null);
                 };
                 React.useEffect(() => {
-                  const v = videoRefs.current[index];
+                  const v = videoRef.current;
                   if (v) {
                     try {
+                      v.pause();
                       v.currentTime = 0;
+                      v.load();
+                      const p = v.play();
+                      if (p && typeof p.then === 'function') {
+                        p.catch(err => {
+                          console.error('Video play failed', { index, err });
+                        });
+                      }
                     } catch {}
                   }
                 }, [index]);
                 return (
                   <div className="w-full h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                     <div className="relative w-full h-full">
-                      {vids.map((src, i) => (
-                        <video
-                          key={i}
-                          ref={(el) => { videoRefs.current[i] = el; }}
-                          src={src}
-                          controls
-                          playsInline
-                          preload="metadata"
-                          controlsList="nodownload noremoteplayback"
-                          disablePictureInPicture
-                          muted
-                          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                          style={{ opacity: i === index ? 1 : 0 }}
-                        />
-                      ))}
+                      <video
+                        key={index}
+                        ref={videoRef}
+                        src={vids[index]}
+                        controls
+                        playsInline
+                        preload="auto"
+                        controlsList="nodownload noremoteplayback"
+                        disablePictureInPicture
+                        muted
+                        crossOrigin="anonymous"
+                        autoPlay
+                        onError={(e) => {
+                          const v = e.currentTarget;
+                          const err = v.error;
+                          console.error('Video error', {
+                            index,
+                            src: vids[index],
+                            code: err?.code,
+                            currentSrc: v.currentSrc,
+                            networkState: v.networkState,
+                            readyState: v.readyState,
+                          });
+                        }}
+                        onLoadedData={(e) => {
+                          const v = e.currentTarget;
+                          console.log('Video loaded', { index, duration: v.duration });
+                        }}
+                        onCanPlay={() => {
+                          console.log('Video can play', { index });
+                        }}
+                        onPlay={() => {
+                          console.log('Video playing', { index });
+                        }}
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                        style={{ opacity: 1 }}
+                      >
+                        <source src={vids[index]} type="video/mp4" />
+                      </video>
                     </div>
                     <button
                       onClick={prev}
