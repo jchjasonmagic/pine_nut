@@ -84,12 +84,15 @@ const Story: React.FC = () => {
                       {vids.map((src, i) => (
                         <video
                           key={i}
-                          src={src}
                           controls
                           playsInline
                           preload="metadata"
+                          controlsList="nodownload noremoteplayback"
+                          disablePictureInPicture
                           className="w-full h-[600px] object-cover flex-shrink-0"
-                        />
+                        >
+                          <source src={src} type="video/mp4" />
+                        </video>
                       ))}
                     </div>
                     <button
