@@ -69,6 +69,7 @@ const Story: React.FC = () => {
                 const [needsUserPlay, setNeedsUserPlay] = React.useState(false);
                 const [status, setStatus] = React.useState<'idle'|'loading'|'ready'|'error'>('idle');
                 const [errorInfo, setErrorInfo] = React.useState<string>('');
+                const [isFullscreen, setIsFullscreen] = React.useState(false);
 
                 const goTo = (i: number) => {
                   setIndex(i);
@@ -99,6 +100,27 @@ const Story: React.FC = () => {
                     } catch {}
                   }
                 }, [index]);
+
+                React.useEffect(() => {
+                  const v = videoRef.current as any;
+                  const onFsChange = () => {
+                    setIsFullscreen(!!document.fullscreenElement || !!(v && v.webkitDisplayingFullscreen));
+                  };
+                  const onBegin = () => setIsFullscreen(true);
+                  const onEnd = () => setIsFullscreen(false);
+                  document.addEventListener('fullscreenchange', onFsChange);
+                  if (v && typeof v.addEventListener === 'function') {
+                    v.addEventListener('webkitbeginfullscreen', onBegin);
+                    v.addEventListener('webkitendfullscreen', onEnd);
+                  }
+                  return () => {
+                    document.removeEventListener('fullscreenchange', onFsChange);
+                    if (v && typeof v.removeEventListener === 'function') {
+                      v.removeEventListener('webkitbeginfullscreen', onBegin);
+                      v.removeEventListener('webkitendfullscreen', onEnd);
+                    }
+                  };
+                }, []);
 
                 return (
                   <div className="w-full h-[60vh] md:h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -136,8 +158,8 @@ const Story: React.FC = () => {
                         onLoadedData={() => {
                           setStatus('ready');
                         }}
-                        className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300"
-                        style={{ opacity: 1 }}
+                        className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                        style={{ opacity: 1, objectFit: isFullscreen ? 'contain' : 'cover' }}
                       >
                         <source src={vids[index]} type="video/mp4" />
                       </video>
