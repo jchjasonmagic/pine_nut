@@ -23,7 +23,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
       - name: Show versions
         run: |
           node --version
@@ -34,7 +33,7 @@ jobs:
           NPM_CONFIG_AUDIT: false
           NODE_ENV: development
         run: |
-          npm ci --include=dev || npm install --no-audit --no-fund
+          npm install --include=dev || npm install --no-audit --no-fund
       - name: Ensure Vite present
         run: |
           npm ls vite || npm i -D vite @vitejs/plugin-react
