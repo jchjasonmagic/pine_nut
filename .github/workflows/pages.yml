@@ -32,7 +32,8 @@ jobs:
         env:
           NPM_CONFIG_FUND: false
           NPM_CONFIG_AUDIT: false
-        run: npm ci
+          NODE_ENV: development
+        run: npm ci --include=dev
       - name: Build
         run: npm run build
       - name: Upload Pages Artifact
