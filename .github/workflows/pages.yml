@@ -33,8 +33,7 @@ jobs:
           NPM_CONFIG_FUND: false
           NPM_CONFIG_AUDIT: false
           NODE_ENV: development
-        run: |
-          npm ci --include=dev || npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund
       - name: Ensure Vite present
         run: |
           npm ls vite || npm i -D vite @vitejs/plugin-react
