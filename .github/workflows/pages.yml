@@ -28,11 +28,11 @@ jobs:
         run: |
           node --version
           npm --version
-      - name: Install
+      - name: Install dependencies (including dev)
         env:
           NPM_CONFIG_FUND: false
           NPM_CONFIG_AUDIT: false
-        run: npm install --no-audit --no-fund
+        run: npm ci
       - name: Build
         run: npm run build
       - name: Upload Pages Artifact
@@ -50,4 +50,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
