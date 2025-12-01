@@ -1,17 +1,17 @@
-
 import React from 'react';
-import video1 from '../video1.mp4';
-import video2 from '../video2.mp4';
-import video3 from '../video3.mp4';
-import video4 from '../video4.mp4';
-import video5 from '../video5.mp4';
-import { Clock, Mountain, ArrowDown } from 'lucide-react';
-import coverFallback from '../factory.jpg';
+import { Mountain } from 'lucide-react';
+import video1 from '../videos/video1.mp4';
+import video2 from '../videos/video2.mp4';
+import video3 from '../videos/video3.mp4';
+import video4 from '../videos/video4.mp4';
+import video5 from '../videos/video5.mp4';
 
 const Story: React.FC = () => {
+  const vids = [video1, video2, video3, video4, video5];
+
   return (
     <section className="py-24 bg-stone-900 text-stone-300 relative overflow-hidden">
-      {/* Background Texture - Use a reliable dark texture */}
+      {/* Background Texture */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
          <img 
             src="https://images.unsplash.com/photo-1516214104703-d8707475b31c?q=80&w=2628&auto=format&fit=crop" 
@@ -62,17 +62,18 @@ const Story: React.FC = () => {
           <div className="md:w-1/2 relative">
             <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-stone-800/50">
               {(() => {
-                const vids = [video1, video2, video3, video4, video5];
                 const [index, setIndex] = React.useState(0);
                 const [startX, setStartX] = React.useState<number | null>(null);
                 const videoRef = React.useRef<HTMLVideoElement | null>(null);
                 const isIOS = /iPhone|iPad|iPod/i.test(typeof navigator !== 'undefined' ? navigator.userAgent : '');
                 const [needsUserPlay, setNeedsUserPlay] = React.useState(false);
+
                 const goTo = (i: number) => {
                   setIndex(i);
                 };
                 const prev = () => goTo((index - 1 + vids.length) % vids.length);
                 const next = () => goTo((index + 1) % vids.length);
+                
                 const onTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
                 const onTouchEnd = (e: React.TouchEvent) => {
                   if (startX === null) return;
@@ -82,101 +83,95 @@ const Story: React.FC = () => {
                   }
                   setStartX(null);
                 };
+
                 React.useEffect(() => {
                   const v = videoRef.current;
                   if (v) {
                     try {
+                      // 切换视频时重置状态
                       v.pause();
                       v.currentTime = 0;
-                      v.load();
+                      v.load(); 
                     } catch {}
                   }
                 }, [index]);
+
                 return (
                   <div className="w-full h-[60vh] md:h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className="relative z-10 w-full h-full">
+                    <div className="relative z-10 w-full h-full bg-black"> {/* 增加黑色背景防止加载闪烁 */}
                       <video
-                        key={index}
+                        key={index} // 这里的 key 很重要，确保 React 重新渲染 video 标签
                         ref={videoRef}
                         src={vids[index]}
                         controls
-                        playsInline
-                        webkit-playsinline
-                        x5-playsinline
+                        playsInline={true}
+                        webkit-playsinline="true"
+                        x5-playsinline="true"
                         x5-video-player-type="h5"
-                        x5-video-player-fullscreen="false"
                         preload="auto"
                         controlsList="nodownload noremoteplayback"
                         disablePictureInPicture
-                        muted
+                        muted={true} // 必须显式为 true 才能自动播放
                         crossOrigin="anonymous"
-                        autoPlay
+                        autoPlay={true}
                         onError={(e) => {
                           const v = e.currentTarget;
-                          const err = v.error;
-                          console.error('Video error', {
-                            index,
+                          console.error('Video error:', {
                             src: vids[index],
-                            code: err?.code,
-                            currentSrc: v.currentSrc,
-                            networkState: v.networkState,
-                            readyState: v.readyState,
+                            error: v.error,
+                            networkState: v.networkState
                           });
-                        }}
-                        onLoadedData={(e) => {
-                          const v = e.currentTarget;
-                          console.log('Video loaded', { index, duration: v.duration });
                         }}
                         onCanPlay={() => {
                           const v = videoRef.current;
-                          if (!v) return;
-                          const p = v.play();
-                          if (p && typeof p.then === 'function') {
-                            p.catch(err => {
-                              setNeedsUserPlay(isIOS);
-                              console.error('Video play failed', { index, err });
+                          if (v) {
+                            v.play().catch(err => {
+                              console.log("Autoplay blocked, showing button", err);
+                              setNeedsUserPlay(true);
                             });
                           }
                         }}
-                        onPlay={() => {
-                          console.log('Video playing', { index });
-                        }}
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                        className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300"
                         style={{ opacity: 1 }}
                       >
-                        <source src={vids[index]} type='video/mp4; codecs="hvc1"'>
+                        <source src={vids[index]} type="video/mp4" />
                       </video>
                     </div>
+
                     {needsUserPlay && (
                       <button
                         onClick={() => {
                           const v = videoRef.current;
-                          if (!v) return;
-                          v.play().then(() => setNeedsUserPlay(false)).catch(() => setNeedsUserPlay(true));
+                          if (v) {
+                            v.play()
+                             .then(() => setNeedsUserPlay(false))
+                             .catch(e => console.error(e));
+                          }
                         }}
-                        className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 text-white rounded-full px-6 py-3 shadow-lg"
+                        className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600/90 text-white rounded-full px-8 py-4 shadow-xl font-bold backdrop-blur-sm"
                       >
-                        点击播放
+                        点击播放视频
                       </button>
                     )}
+
                     <button
                       onClick={prev}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-stone-900/40 hover:bg-stone-900/60 text-white rounded-full p-3"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-stone-900/40 hover:bg-stone-900/60 text-white rounded-full p-3 z-20"
                     >
                       ‹
                     </button>
                     <button
                       onClick={next}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-stone-900/40 hover:bg-stone-900/60 text-white rounded-full p-3"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-stone-900/40 hover:bg-stone-900/60 text-white rounded-full p-3 z-20"
                     >
                       ›
                     </button>
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                       {vids.map((_, i) => (
                         <button
                           key={i}
                           onClick={() => goTo(i)}
-                          className={`w-2.5 h-2.5 rounded-full ${i === index ? 'bg-white' : 'bg-white/50'}`}
+                          className={`w-2.5 h-2.5 rounded-full shadow ${i === index ? 'bg-white' : 'bg-white/50'}`}
                         />
                       ))}
                     </div>
@@ -184,7 +179,7 @@ const Story: React.FC = () => {
                 );
               })()}
               <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent md:opacity-50 opacity-20 pointer-events-none z-0"></div>
-              <div className="absolute bottom-8 left-8 text-white">
+              <div className="absolute bottom-8 left-8 text-white z-10">
                 <div className="text-xs uppercase tracking-widest opacity-70 mb-2">Brand Story</div>
                 <div className="text-2xl font-serif">走进长白山与松子</div>
               </div>
