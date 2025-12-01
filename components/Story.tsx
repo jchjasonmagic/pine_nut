@@ -67,6 +67,8 @@ const Story: React.FC = () => {
                 const videoRef = React.useRef<HTMLVideoElement | null>(null);
                 const isIOS = /iPhone|iPad|iPod/i.test(typeof navigator !== 'undefined' ? navigator.userAgent : '');
                 const [needsUserPlay, setNeedsUserPlay] = React.useState(false);
+                const [status, setStatus] = React.useState<'idle'|'loading'|'ready'|'error'>('idle');
+                const [errorInfo, setErrorInfo] = React.useState<string>('');
 
                 const goTo = (i: number) => {
                   setIndex(i);
@@ -89,16 +91,18 @@ const Story: React.FC = () => {
                   if (v) {
                     try {
                       // 切换视频时重置状态
+                      setStatus('loading');
+                      setErrorInfo('');
                       v.pause();
                       v.currentTime = 0;
-                      v.load(); 
+                      v.load();
                     } catch {}
                   }
                 }, [index]);
 
                 return (
                   <div className="w-full h-[60vh] md:h-[600px]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className="relative z-10 w-full h-full bg-black"> {/* 增加黑色背景防止加载闪烁 */}
+                    <div className="relative z-10 w-full h-full bg-black">
                       <video
                         key={index} // 这里的 key 很重要，确保 React 重新渲染 video 标签
                         ref={videoRef}
@@ -108,19 +112,17 @@ const Story: React.FC = () => {
                         webkit-playsinline="true"
                         x5-playsinline="true"
                         x5-video-player-type="h5"
-                        preload="auto"
-                        controlsList="nodownload noremoteplayback"
-                        disablePictureInPicture
+                        preload="metadata"
+                        controlsList="nodownload"
                         muted={true} // 必须显式为 true 才能自动播放
-                        crossOrigin="anonymous"
+                        // 移除 crossOrigin 以避免同源环境下的潜在策略影响
                         autoPlay={true}
                         onError={(e) => {
                           const v = e.currentTarget;
-                          console.error('Video error:', {
-                            src: vids[index],
-                            error: v.error,
-                            networkState: v.networkState
-                          });
+                          setStatus('error');
+                          const msg = `code=${v.error?.code ?? 'n/a'} ns=${v.networkState} rs=${v.readyState}`;
+                          setErrorInfo(msg);
+                          setNeedsUserPlay(isIOS);
                         }}
                         onCanPlay={() => {
                           const v = videoRef.current;
@@ -131,11 +133,24 @@ const Story: React.FC = () => {
                             });
                           }
                         }}
+                        onLoadedData={() => {
+                          setStatus('ready');
+                        }}
                         className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300"
                         style={{ opacity: 1 }}
                       >
                         <source src={vids[index]} type="video/mp4" />
                       </video>
+
+                      {/* 状态提示层（仅移动端显示更清晰） */}
+                      {status !== 'ready' && (
+                        <div className="absolute inset-0 flex items-center justify-center z-20">
+                          <div className="px-4 py-2 rounded bg-stone-900/70 text-white text-sm">
+                            {status === 'loading' && '正在加载视频…'}
+                            {status === 'error' && `播放失败 (${errorInfo})`}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {needsUserPlay && (
